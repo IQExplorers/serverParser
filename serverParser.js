@@ -1,6 +1,7 @@
 const express = require("express");
 const cheerio = require("cheerio");
 const axios = require("axios");
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
@@ -19,6 +20,8 @@ const fakeDotaSelector = "#mw-content-text > div > div:nth-child(3) > div";
 const CSGOSource = "https://liquipedia.net/counterstrike/Liquipedia:Matches";
 const fakeDotaSource = "https://liquipedia.net/dota2/B8";
 const valorantSource = "https://liquipedia.net/valorant/Liquipedia:Matches";
+
+app.use(cors({ origin: "*" }));
 
 app.get("/matches", async (req, res) => {
   try {
