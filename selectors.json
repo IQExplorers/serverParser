@@ -1,0 +1,5 @@
+{
+  "CSGOSelector": "#mw-content-text > div > div.panel-box.wiki-bordercolor-light.toggle-area.toggle-area-1.matches-list > div:nth-child(2) > div:nth-child(1)",
+  "valorantSelector": "#mw-content-text > div > div.panel-box.wiki-bordercolor-light.toggle-area.toggle-area-1.matches-list > div:nth-child(2) > div:nth-child(1)",
+  "dotaSelector": "#mw-content-text > div > div:nth-child(3) > div"
+}
