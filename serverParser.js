@@ -5,15 +5,15 @@ const cors = require("cors");
 const selectors = require("./selectors.json");
 require("dotenv").config();
 
+//express config
 const app = express();
+app.use(cors({ origin: "*" }));
 const port = process.env.PORT || 4000;
 
 const CSGOSource = "https://liquipedia.net/counterstrike/Liquipedia:Matches";
 const fakeDotaSource = "https://liquipedia.net/dota2/B8";
 const valorantSource = "https://liquipedia.net/valorant/Liquipedia:Matches";
 const teamToFind = process.env.TEAM_TO_FIND;
-
-app.use(cors({ origin: "*" }));
 
 app.get("/matches", async (req, res) => {
   try {
@@ -37,11 +37,18 @@ async function parseMatches(sourcePage, selector, game) {
   $(selector)
     .find("table")
     .each((tableId, tableElement) => {
-      const leftTeam = $(tableElement).find(".team-left").text().trim();
-      const rightTeam = $(tableElement).find(".team-right").text().trim();
+      const leftTeamElement = $(tableElement).find(".team-left");
+      const rightTeamElement = $(tableElement).find(".team-right");
+      const leftTemaName = leftTeamElement.text().trim();
+      const rightTeamName = rightTeamElement.text().trim();
 
-      if (leftTeam === teamToFind || rightTeam === teamToFind) {
-        const enemy = leftTeam === teamToFind ? rightTeam : leftTeam;
+      if (leftTemaName === teamToFind || rightTeamName === teamToFind) {
+        const enemyElement =
+          leftTemaName === teamToFind ? rightTeamElement : leftTeamElement;
+
+        const enemyName = enemyElement.text().trim();
+        const enemyImageLink =
+          "https://liquipedia.net" + enemyElement.find("img").attr("src");
 
         const tournamentName = $(tableElement)
           .find("tr:nth-child(2) > td > div > div > a")
@@ -63,12 +70,14 @@ async function parseMatches(sourcePage, selector, game) {
           .text();
 
         const utcDateObj = new Date(Date.parse(dateText));
-        console.log("utcDateObj", utcDateObj);
 
         const status = utcDateObj.getTime() < Date.now() ? "going" : "upcoming";
 
         matches.push({
-          Name: enemy,
+          Enemy: {
+            name: enemyName,
+            image: enemyImageLink,
+          },
           Game: game,
           Date: utcDateObj,
           Format: format,
@@ -92,8 +101,17 @@ async function parseDota(dotaSource, selector) {
   $(selector)
     .find("table")
     .each((tableId, tableElement) => {
-      const leftTeam = $(tableElement).find(".team-left").text().trim();
-      const rightTeam = $(tableElement).find(".team-right").text().trim();
+      const leftTeamElement = $(tableElement).find(".team-left");
+      const rightTeamElement = $(tableElement).find(".team-right");
+      const leftTemaName = leftTeamElement.text().trim();
+      const rightTeamName = rightTeamElement.text().trim();
+
+      const enemyElement =
+        leftTemaName === teamToFind ? rightTeamElement : leftTeamElement;
+
+      const enemyName = enemyElement.text().trim();
+      const enemyImageLink =
+        "https://liquipedia.net" + enemyElement.find("img").attr("src");
 
       const dateText = $(tableElement)
         .find(".match-countdown")
@@ -114,15 +132,16 @@ async function parseDota(dotaSource, selector) {
         .find("abbr")
         .text();
 
-      const enemy = leftTeam === teamToFind ? rightTeam : leftTeam;
-
       const utcDateObj = new Date(Date.parse(dateText));
-      console.log("utcDateObj", utcDateObj);
+      
 
-      const status = utcDateObj.getTime() < Date.now() ? "going" : "upcoming";
+      const status = utcDateObj.getTime() < Date.now() ? "going" : "upcoming" ;
 
       matches.push({
-        Name: enemy,
+        Enemy: {
+          name: enemyName,
+          image: enemyImageLink,
+        },
         Game: "Dota 2",
         Date: utcDateObj,
         Format: format,
